@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta charset='UTF-8'>
+  <title>Quick check</title>
+  <style>
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background-color: #f5f7fb;
+  color: #111827;
+}
+h1, h2, h3 {
+  color: #000f46;
+}
+#quiz-wrapper {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 16px 12px 32px 12px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #d3d8e5;
+  box-shadow: 0 10px 18px rgba(15,23,42,0.05);
+}
+.q-title {
+  font-size: 20px;
+  margin-top: 0;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  column-gap: 6px;
+}
+.q-title span.icon {
+  font-size: 22px;
+}
+.q-intro {
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+.q-prompt {
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+.q-sentence {
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+#gap-blank {
+  padding: 2px 6px;
+  border-radius: 999px;
+  border: 1px dashed #cbd5e1;
+  background-color: #eef2ff;
+  font-weight: 600;
+}
+.options-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.option-pill {
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 13px;
+  border: 1px solid #cbd5e1;
+  background-color: #e5edff;
+  cursor: pointer;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: normal;
+}
+.option-pill.selected {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 1px rgba(79,70,229,0.25);
+}
+.option-pill.correct {
+  background-color: #dcfce7;
+  border-color: #22c55e;
+}
+.option-pill.incorrect {
+  background-color: #fee2e2;
+  border-color: #ef4444;
+}
+#quiz-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  column-gap: 10px;
+  margin-top: 10px;
+}
+.w-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  column-gap: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+  border-radius: 999px;
+  border: 1px solid #cbd5e1;
+  cursor: pointer;
+  background-color: #e5edff;
+  color: #111827;
+}
+.w-btn.secondary {
+  background-color: #ffffff;
+  color: #111827;
+  border-color: #cbd5e1;
+}
+.w-btn span.icon {
+  font-size: 14px;
+}
+#q-result {
+  font-size: 13px;
+  color: #111827;
+}
+#q-feedback {
+  font-size: 12px;
+  color: #4b5563;
+  margin-top: 4px;
+}
+@media (max-width: 640px) {
+  #quiz-controls {
+    flex-direction: column;
+    align-items: flex-start;
+    row-gap: 6px;
+  }
+}
+
+  </style>
+</head>
+<body>
+<div id='quiz-wrapper'>
+  <h2 class='q-title'><span class='icon'>🧠</span><span>Quick check</span></h2>
+  <p class='q-intro'>Balance day adjustments are transactions that are recognised on balance day, i.e. the end of a period. It is important that we recognise such transactions. But why?</p>
+  <p class='q-prompt'><b>Which accounting assumption could best explain why balance day adjustments are necessary?</b></p>
+  <div class='options-list'>
+    <button id='opt1' class='option-pill' type='button' data-correct='false' onclick="handleOptionClick('opt1')">Accounting Entity Assumption</button>
+        <button id='opt2' class='option-pill' type='button' data-correct='true' onclick="handleOptionClick('opt2')">Accrual Basis Assumption</button>
+        <button id='opt3' class='option-pill' type='button' data-correct='false' onclick="handleOptionClick('opt3')">Going Concern Assumption</button>
+        <button id='opt4' class='option-pill' type='button' data-correct='false' onclick="handleOptionClick('opt4')">Period Assumption</button>
+  </div>
+  <div id='quiz-controls'>
+    <div>
+      <button class='w-btn' type='button' onclick='checkQuizAnswer()'><span class='icon'>✅</span><span>Check answer</span></button>
+      <button class='w-btn secondary' type='button' onclick='resetQuiz()'><span class='icon'>🔁</span><span>Reset</span></button>
+    </div>
+    <div>
+      <div id='q-result'>Select an option, then click Check answer.</div>
+      <div id='q-feedback'></div>
+    </div>
+  </div>
+</div>
+<script>
+
+let selectedId = null;
+
+function handleOptionClick(id) {
+  const buttons = document.querySelectorAll('.option-pill');
+  buttons.forEach(btn => btn.classList.remove('selected', 'correct', 'incorrect'));
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.add('selected');
+  selectedId = id;
+
+  const result = document.getElementById('q-result');
+  const feedback = document.getElementById('q-feedback');
+  if (result) result.textContent = 'When you are ready, click Check answer.';
+  if (feedback) feedback.textContent = '';
+
+  const gap = document.getElementById('gap-blank');
+  if (gap) {
+    gap.textContent = el.textContent.trim();
+  }
+}
+
+function checkQuizAnswer() {
+  const result = document.getElementById('q-result');
+  const feedback = document.getElementById('q-feedback');
+
+  if (!selectedId) {
+    if (result) result.textContent = 'Please select an option before checking your answer.';
+    if (feedback) feedback.textContent = '';
+    return;
+  }
+
+  const el = document.getElementById(selectedId);
+  if (!el) return;
+
+  const isCorrect = el.getAttribute('data-correct') === 'true';
+  const buttons = document.querySelectorAll('.option-pill');
+  buttons.forEach(btn => btn.classList.remove('correct', 'incorrect'));
+
+  if (isCorrect) {
+    el.classList.add('correct');
+    if (result) result.textContent = 'Correct!';
+    if (feedback) feedback.textContent = 'Nice work – that is the correct answer. 🎉';
+  } else {
+    el.classList.add('incorrect');
+    if (result) result.textContent = 'Not quite.';
+    if (feedback) feedback.textContent = 'Have another look and try a different option.';
+  }
+}
+
+function resetQuiz() {
+  selectedId = null;
+  const buttons = document.querySelectorAll('.option-pill');
+  buttons.forEach(btn => btn.classList.remove('selected', 'correct', 'incorrect'));
+
+  const result = document.getElementById('q-result');
+  const feedback = document.getElementById('q-feedback');
+  if (result) result.textContent = 'Select an option, then click Check answer.';
+  if (feedback) feedback.textContent = '';
+
+  const gap = document.getElementById('gap-blank');
+  if (gap) {
+    gap.textContent = '_____';
+  }
+}
+
+</script>
+</body>
+</html>
+
